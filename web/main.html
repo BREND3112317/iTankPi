@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" http-equiv="Content-Type" content="width=device-width, initial-scale=1.0">
+    <title>Main - WebCoding</title>
+    <link href="/static/css/style.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="/static/css/font-face.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
+    <style>
+        html, body {
+            padding: 0;
+        }
+
+        .main {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+            align-items: flex-start;
+        }
+
+        .webcam {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-color: aqua;
+        }
+
+        .webcam img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .info {
+            width: 100%;
+            height: 50vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .info-container {
+            text-align: end;
+            /* width: 50%; */
+            /* height: 50%; */
+            background-color: cadetblue;
+            opacity: 0.5;
+        }
+
+        .control {
+            width: 100%;
+            height: 50vh;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .control-left {
+            padding: 50px;
+            display: flex;
+            flex-direction: row;
+            justify-content: start;
+            align-items: flex-start;
+        }
+
+        .control-right {
+            padding: 50px;
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: start;
+            align-items: flex-end;
+        }
+
+        .joy-min {
+            width: 200px;
+            height: 200px;
+            /* margin-bottom: 30px;
+            margin-right: 50px; */
+        }
+
+        .joystick {
+            margin: 50px;
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background-color: blue;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .joystick-btn {
+            height: 65px;
+            width: 65px;
+            font-size: 32px;
+        }
+
+        .joystick-h { /*水平*/
+            position: absolute;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .joystick-v { /*垂直*/
+            position: absolute;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="webcam">
+            <img id="webcamStream" src=""/>
+        </div>
+        <div class="info">
+            <div class="info-container">
+                <span>tTitle: tData</span>
+            </div>
+        </div>
+        <div class="control">
+            <!-- <div class="control-left">
+                <div class="joystick">
+                    <div class="joystick-h">
+                        <a class="joystick-btn btn btn-secondary">
+                            <i class="fas fa-arrow-up"></i>
+                        </a>
+                        <a class="joystick-btn btn btn-secondary">
+                            <i class="fas fa-arrow-down"></i>
+                        </a>
+                    </div>
+                    <div class="joystick-v">
+                        <a class="joystick-btn btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <a class="joystick-btn btn btn-secondary">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div> -->
+            <div class="control-left">
+                <div id="joyMove" class="joy-min"></div>
+                <div class="MoveInfo">
+                    <div class="moveInfo-x">
+                        <span>X:</span>
+                        <span id="joyMoveX"></span>
+                    </div>
+                    <div class="moveInfo-y">
+                        <span>Y:</span>
+                        <span id="joyMoveY"></span>
+                    </div>
+                    <div class="motor-l">
+                        <span>motorL:</span>
+                        <span id="motorL"></span>
+                    </div>
+                    <div class="motor-r">
+                        <span>motorR:</span>
+                        <span id="motorR"></span>
+                    </div>
+                    <div class="angle">
+                        <span>angle:</span>
+                        <span id="angle"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="/static/js/ajax.js"></script>
+    <script src="/static/js/System.js"></script>
+    <script src="/static/js/joy.min.js"></script>
+    <script>
+        var stream_link = "http://192.168.31.44:8081/?action=stream"
+        var webcam_stream = document.getElementById('webcamStream')
+        webcam_stream.setAttribute('src', stream_link)
+
+        var itank_api = ""
+
+        var joyMove = new JoyStick('joyMove');
+        var joyMoveX = document.getElementById('joyMoveX');
+        var joyMoveY = document.getElementById('joyMoveY');
+        var motorL = document.getElementById('motorL');
+        var motorR = document.getElementById('motorR');
+        var angle = document.getElementById('angle');
+        var motorSpeed = 14;
+
+        setInterval(function () {
+            let MoveX = joyMove.GetX();
+            let MoveY = joyMove.GetY();
+            try {
+                if(parseInt(joyMoveX.innerText) != MoveX || parseInt(joyMoveY.innerText) != MoveY) {
+                    throw Exception();
+                }
+            } catch {
+                console.log(`(${joyMoveX.innerText}, ${joyMoveY.innerText}) => (${MoveX}, ${MoveY})`);
+                joyMoveX.innerText = MoveX;
+                joyMoveY.innerText = MoveY;
+                motorL.innerText = Math.acos(MoveY/((MoveX**2 + MoveY**2)**0.5))/Math.PI;
+                motorR.innerText = Math.acos(MoveX/((MoveX**2 + MoveY**2)**0.5))/Math.PI;
+                angle.innerText = Math.asin(MoveY/((MoveX**2 + MoveY**2)**0.5))/Math.acos(MoveX/((MoveX**2 + MoveY**2)**0.5))
+                // ajax.post(`${itank_api}/api/move`, {
+                //     x: MoveX,
+                //     y: MoveY
+                // });
+            }
+        }, 50);
+    </script>
+</body>
+</html>
