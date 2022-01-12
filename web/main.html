@@ -191,7 +191,7 @@
         var webcam_stream = document.getElementById('webcamStream')
         webcam_stream.setAttribute('src', stream_link)
 
-        var itank_api = ""
+        var itank_api = "http://192.168.2.105"
 
         var joyMove = new JoyStick('joyMove');
         var joyMoveX = document.getElementById('joyMoveX');
@@ -200,6 +200,14 @@
         var motorR = document.getElementById('motorR');
         var angle = document.getElementById('angle');
         var motorSpeed = 14;
+
+        iTankInfo = () => {
+            AJAX.get(`${itank_api}/api/info`, {
+                success: (data) => {
+                    console.log("[get Test] data", data);
+                }
+            });
+        }
 
         setInterval(function () {
             let MoveX = joyMove.GetX();
@@ -221,6 +229,8 @@
                 // });
             }
         }, 50);
+
+        setInterval(iTankInfo, 5000)
     </script>
 </body>
 </html>
