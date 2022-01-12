@@ -183,6 +183,7 @@
         </div>
     </div>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
     <script src="/static/js/ajax.js"></script>
@@ -193,7 +194,7 @@
         var webcam_stream = document.getElementById('webcamStream')
         webcam_stream.setAttribute('src', stream_link)
 
-        var itank_api = "192.168.2.105"
+        var itank_api = "//192.168.2.105"
 
         var joyMove = new JoyStick('joyMove');
         var joyMoveX = document.getElementById('joyMoveX');
@@ -207,10 +208,42 @@
         var ori_ah = 0.;
         var tan = 0.;
 
+        AjaxAPI_GET = (path, callback) => {
+            $.ajax({
+                url: `${itank_api}${path}`,
+                method: 'GET',
+                dataType: 'json',
+                data: '',
+                async: true, 
+            
+                success: data =>{
+                    if(typeof callback.success !== 'undefined') {
+                        callback.success(data);
+                    }else {
+                        console.log("[GET] `${itank_api}${path}` Success", data)
+                    }
+                },
+                error: err =>{
+                    if(typeof callback.error !== 'undefined') {
+                        callback.error(data);
+                    }else {
+                        console.log("[GET] `${itank_api}${path}` Error", data)
+                    }
+                },
+            });
+        }
+
         iTankInfo = () => {
-            AJAX.get(`${itank_api}/api/info`, {
+            AjaxAPI_GET("/api/info", {
                 success: (data) => {
-                    console.log("[get Test] data", data);
+                    let _Info = $("body > div.main > div.info > div")
+                    _Info.html("")
+                    for (const [key, value] of Object.entries(data)) {
+                        // console.log(`${key}: ${value}`);
+                        _Info.append(
+                            `<div class="info-item"><spen class="item-title">${key}</span>: <span class="item-desctiption">${value}</span></div>`
+                        )
+                    }
                 }
             });
         }
@@ -245,7 +278,11 @@
             } catch {
                 console.log(`Dirz: (${dirz.innerText}) => (${MoveDirz})`);
                 dirz.innerText = MoveDirz;
-                AJAX.get(`${itank_api}/api/control/dir/${dirz.innerText}`);
+                AjaxAPI_GET(`/api/control/dir/${dirz.innerText}`, {
+                    success: {
+
+                    }
+                })
             }
         }
 
