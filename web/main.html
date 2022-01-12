@@ -47,11 +47,13 @@
             align-items: flex-end;
         }
 
-        .info-container {
+        .info .info-container {
             text-align: end;
-            /* width: 50%; */
-            /* height: 50%; */
-            background-color: cadetblue;
+        }
+
+        .info-container {
+            background-color: black;
+            color: white;
             opacity: 0.5;
         }
 
@@ -155,7 +157,7 @@
             </div> -->
             <div class="control-left">
                 <div id="joyMove" class="joy-min"></div>
-                <div class="MoveInfo">
+                <div class="MoveInfo info-container">
                     <div class="moveInfo-x">
                         <span>X:</span>
                         <span id="joyMoveX"></span>
@@ -165,16 +167,16 @@
                         <span id="joyMoveY"></span>
                     </div>
                     <div class="motor-l">
-                        <span>motorL:</span>
-                        <span id="motorL"></span>
+                        <span>tan:</span>
+                        <span id="tan"></span>
                     </div>
                     <div class="motor-r">
-                        <span>motorR:</span>
-                        <span id="motorR"></span>
+                        <span>atan:</span>
+                        <span id="atan"></span>
                     </div>
-                    <div class="angle">
-                        <span>angle:</span>
-                        <span id="angle"></span>
+                    <div class="Dirz">
+                        <span>dirz:</span>
+                        <span id="dirz"></span>
                     </div>
                 </div>
             </div>
@@ -191,15 +193,19 @@
         var webcam_stream = document.getElementById('webcamStream')
         webcam_stream.setAttribute('src', stream_link)
 
-        var itank_api = "http://192.168.2.105"
+        var itank_api = "192.168.2.105"
 
         var joyMove = new JoyStick('joyMove');
         var joyMoveX = document.getElementById('joyMoveX');
         var joyMoveY = document.getElementById('joyMoveY');
-        var motorL = document.getElementById('motorL');
-        var motorR = document.getElementById('motorR');
-        var angle = document.getElementById('angle');
+        var tan = document.getElementById('tan');
+        var atan = document.getElementById('atan');
+        var dirz = document.getElementById('dirz');
         var motorSpeed = 14;
+
+        var ori = 0.;
+        var ori_ah = 0.;
+        var tan = 0.;
 
         iTankInfo = () => {
             AJAX.get(`${itank_api}/api/info`, {
@@ -209,7 +215,7 @@
             });
         }
 
-        setInterval(function () {
+        MoveXYIsChanged = () => {
             let MoveX = joyMove.GetX();
             let MoveY = joyMove.GetY();
             try {
@@ -218,19 +224,36 @@
                 }
             } catch {
                 console.log(`(${joyMoveX.innerText}, ${joyMoveY.innerText}) => (${MoveX}, ${MoveY})`);
+                tan = MoveY / MoveX;
                 joyMoveX.innerText = MoveX;
                 joyMoveY.innerText = MoveY;
-                motorL.innerText = Math.acos(MoveY/((MoveX**2 + MoveY**2)**0.5))/Math.PI;
-                motorR.innerText = Math.acos(MoveX/((MoveX**2 + MoveY**2)**0.5))/Math.PI;
-                angle.innerText = Math.asin(MoveY/((MoveX**2 + MoveY**2)**0.5))/Math.acos(MoveX/((MoveX**2 + MoveY**2)**0.5))
-                // ajax.post(`${itank_api}/api/move`, {
+                tan.innerText = ori = tan;
+                atan.innerText = ori_ah = Math.atan(tan);
+                // AJAX.post(`${itank_api}/api/move`, {
                 //     x: MoveX,
                 //     y: MoveY
                 // });
             }
-        }, 50);
+        }
 
-        setInterval(iTankInfo, 5000)
+        MoveDIrzIsChange = () => {
+            let MoveDirz = joyMove.GetDir();
+            try {
+                if(dirz.innerText != MoveDirz) {
+                    throw Exception();
+                }
+            } catch {
+                console.log(`Dirz: (${dirz.innerText}) => (${MoveDirz})`);
+                dirz.innerText = MoveDirz;
+                AJAX.get(`${itank_api}/api/control/dir/${dirz.innerText}`);
+            }
+        }
+
+        // setInterval(MoveXYIsChanged, 50);
+
+        setInterval(MoveDIrzIsChange, 100);
+
+        setInterval(iTankInfo, 2500)
     </script>
 </body>
 </html>
