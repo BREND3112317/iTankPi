@@ -174,17 +174,17 @@
                 <div id="car" class="joysticker">
                     <div id="joyMove" class="joy-min"></div>
                     <div class="JoyInfo info-container">
-                        <div class="moveInfo-x">
+                        <!-- <div class="moveInfo-x">
                             <span>X:</span>
                             <span id="joyMoveX"></span>
                         </div>
                         <div class="moveInfo-y">
                             <span>Y:</span>
                             <span id="joyMoveY"></span>
-                        </div>
+                        </div> -->
                         <div class="Dirz">
                             <span>dirz:</span>
-                            <span id="dirz"></span>
+                            <span id="MoveDirz"></span>
                         </div>
                     </div>
                 </div>
@@ -193,17 +193,17 @@
                 <div id="hand">
                     <div id="joyCam" class="joy-min"></div>
                     <div class="JoyInfo info-container">
-                        <div class="moveInfo-x">
+                        <!-- <div class="moveInfo-x">
                             <span>X:</span>
                             <span id="joyMoveX"></span>
                         </div>
                         <div class="moveInfo-y">
                             <span>Y:</span>
                             <span id="joyMoveY"></span>
-                        </div>
+                        </div> -->
                         <div class="Dirz">
                             <span>dirz:</span>
-                            <span id="dirz"></span>
+                            <span id="CamDirz"></span>
                         </div>
                     </div>
                 </div>
@@ -222,14 +222,15 @@
         var webcam_stream = document.getElementById('webcamStream')
         webcam_stream.setAttribute('src', stream_link)
 
-        var itank_api = "//192.168.43.155"
+        var itank_api = "//192.168.43.1551"
 
         var joyMove = new JoyStick('joyMove');
-        var joyMoveX = document.getElementById('joyMoveX');
-        var joyMoveY = document.getElementById('joyMoveY');
-        var dirz = document.getElementById('dirz');
+        // var joyMoveX = document.getElementById('joyMoveX');
+        // var joyMoveY = document.getElementById('joyMoveY');
+        var MoveDirz = document.getElementById('MoveDirz');
 
         var joyCam = new JoyStick('joyCam');
+        var CamDirz = document.getElementById('CamDirz');
 
         AjaxAPI_GET = (path, callback) => {
             $.ajax({
@@ -259,7 +260,7 @@
         iTankInfo = () => {
             AjaxAPI_GET("/api/info", {
                 success: (data) => {
-                    let _Info = $("body > div.main > div.info > div")
+                    let _Info = $("body > div.main > div.info > div.info-container")
                     _Info.html("")
                     for (const [key, value] of Object.entries(data)) {
                         _Info.append(
@@ -269,7 +270,7 @@
                 }
             });
         }
-        // setInterval(iTankInfo, 2500)
+        setInterval(iTankInfo, 1000)
 
         MoveXYIsChanged = () => {
             let MoveX = joyMove.GetX();
@@ -288,26 +289,43 @@
                 // });
             }
         }
-        setInterval(MoveXYIsChanged, 50);
+        // setInterval(MoveXYIsChanged, 50);
 
         MoveDIrzIsChange = () => {
-            let MoveDirz = joyMove.GetDir();
+            let moveDirz = joyMove.GetDir();
             try {
-                if(dirz.innerText != MoveDirz) {
+                if(MoveDirz.innerText != moveDirz) {
                     throw Exception();
                 }
             } catch {
-                console.log(`Dirz: (${dirz.innerText}) => (${MoveDirz})`);
-                dirz.innerText = MoveDirz;
-                AjaxAPI_GET(`/api/control/dir/${dirz.innerText}`, {
+                console.log(`Dirz: (${MoveDirz.innerText}) => (${moveDirz})`);
+                MoveDirz.innerText = moveDirz;
+                AjaxAPI_GET(`/api/control/dir/${MoveDirz.innerText}`, {
                     success: () => {
-                        console.log(`Send iTank Move Status: ${dirz.innerText}`);
+                        console.log(`Send iTank Move Status: ${MoveDirz.innerText}`);
                     }
                 })
             }
         }
         setInterval(MoveDIrzIsChange, 100);
         
+        CamDIrzIsChange = () => {
+            let camDirz = joyCam.GetDir();
+            try {
+                if(CamDirz.innerText != camDirz) {
+                    throw Exception();
+                }
+            } catch {
+                console.log(`Cam Dirz: (${CamDirz.innerText}) => (${camDirz})`);
+                CamDirz.innerText = camDirz;
+                // AjaxAPI_GET(`/api/control/dir/${dirz.innerText}`, {
+                //     success: () => {
+                //         console.log(`Send iTank Move Status: ${dirz.innerText}`);
+                //     }
+                // })
+            }
+        }
+        setInterval(CamDIrzIsChange, 100);
     </script>
 </body>
 </html>
