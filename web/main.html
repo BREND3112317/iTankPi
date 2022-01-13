@@ -67,19 +67,45 @@
         }
 
         .control-left {
-            padding: 50px;
             display: flex;
             flex-direction: row;
+        }
+
+        .control-left {
+            padding: 50px;
             justify-content: start;
             align-items: flex-start;
         }
 
+        .control-left div {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .control-left #joystick {
+            border: 1px solid rgb(255, 37, 37);
+            border-radius: 2rem;
+        }
+
         .control-right {
-            padding: 50px;
             display: flex;
             flex-direction: row-reverse;
+        }
+
+        .control-right {
+            padding: 50px;
             justify-content: start;
-            align-items: flex-end;
+            align-items: center;
+        }
+
+        .control-right div {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .control-right #joystick {
+            border: 1px solid rgb(37, 106, 255);
+            border-radius: 2rem;
         }
 
         .joy-min {
@@ -135,50 +161,45 @@
             </div>
         </div>
         <div class="control">
-            <!-- <div class="control-left">
-                <div class="joystick">
-                    <div class="joystick-h">
-                        <a class="joystick-btn btn btn-secondary">
-                            <i class="fas fa-arrow-up"></i>
-                        </a>
-                        <a class="joystick-btn btn btn-secondary">
-                            <i class="fas fa-arrow-down"></i>
-                        </a>
-                    </div>
-                    <div class="joystick-v">
-                        <a class="joystick-btn btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i>
-                        </a>
-                        <a class="joystick-btn btn btn-secondary">
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div> -->
             <div class="control-left">
-                <div id="joyMove" class="joy-min"></div>
-                <div class="MoveInfo info-container">
-                    <div class="moveInfo-x">
-                        <span>X:</span>
-                        <span id="joyMoveX"></span>
-                    </div>
-                    <div class="moveInfo-y">
-                        <span>Y:</span>
-                        <span id="joyMoveY"></span>
-                    </div>
-                    <div class="motor-l">
-                        <span>tan:</span>
-                        <span id="tan"></span>
-                    </div>
-                    <div class="motor-r">
-                        <span>atan:</span>
-                        <span id="atan"></span>
-                    </div>
-                    <div class="Dirz">
-                        <span>dirz:</span>
-                        <span id="dirz"></span>
+                <div id="car" class="joysticker">
+                    <div id="joyMove" class="joy-min"></div>
+                    <div class="JoyInfo info-container">
+                        <div class="moveInfo-x">
+                            <span>X:</span>
+                            <span id="joyMoveX"></span>
+                        </div>
+                        <div class="moveInfo-y">
+                            <span>Y:</span>
+                            <span id="joyMoveY"></span>
+                        </div>
+                        <div class="Dirz">
+                            <span>dirz:</span>
+                            <span id="dirz"></span>
+                        </div>
                     </div>
                 </div>
+            </div>
+            <div class="control-right">
+                <div id="hand">
+                    <div id="joyCam" class="joy-min"></div>
+                    <div class="JoyInfo info-container">
+                        <div class="moveInfo-x">
+                            <span>X:</span>
+                            <span id="joyMoveX"></span>
+                        </div>
+                        <div class="moveInfo-y">
+                            <span>Y:</span>
+                            <span id="joyMoveY"></span>
+                        </div>
+                        <div class="Dirz">
+                            <span>dirz:</span>
+                            <span id="dirz"></span>
+                        </div>
+                    </div>
+                </div>
+                <button type="
+                " class="btn btn-primary">回正</button>
             </div>
         </div>
     </div>
@@ -186,11 +207,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
-    <script src="/static/js/ajax.js"></script>
     <script src="/static/js/System.js"></script>
     <script src="/static/js/joy.min.js"></script>
     <script>
-        var stream_link = "http://192.168.2.101:8081/?action=stream"
+        var stream_link = `http://${location.host}:8081/?action=stream`
         var webcam_stream = document.getElementById('webcamStream')
         webcam_stream.setAttribute('src', stream_link)
 
@@ -199,14 +219,9 @@
         var joyMove = new JoyStick('joyMove');
         var joyMoveX = document.getElementById('joyMoveX');
         var joyMoveY = document.getElementById('joyMoveY');
-        var tan = document.getElementById('tan');
-        var atan = document.getElementById('atan');
         var dirz = document.getElementById('dirz');
-        var motorSpeed = 14;
 
-        var ori = 0.;
-        var ori_ah = 0.;
-        var tan = 0.;
+        var joyCam = new JoyStick('joyCam');
 
         AjaxAPI_GET = (path, callback) => {
             $.ajax({
@@ -220,14 +235,14 @@
                     if(typeof callback.success !== 'undefined') {
                         callback.success(data);
                     }else {
-                        console.log("[GET] `${itank_api}${path}` Success", data)
+                        console.log(`[GET] ${itank_api}${path} Success`, data)
                     }
                 },
                 error: err =>{
                     if(typeof callback.error !== 'undefined') {
                         callback.error(data);
                     }else {
-                        console.log("[GET] `${itank_api}${path}` Error", data)
+                        console.log(`[GET] ${itank_api}${path} Error`, data)
                     }
                 },
             });
@@ -239,7 +254,6 @@
                     let _Info = $("body > div.main > div.info > div")
                     _Info.html("")
                     for (const [key, value] of Object.entries(data)) {
-                        // console.log(`${key}: ${value}`);
                         _Info.append(
                             `<div class="info-item"><spen class="item-title">${key}</span>: <span class="item-desctiption">${value}</span></div>`
                         )
@@ -247,6 +261,7 @@
                 }
             });
         }
+        // setInterval(iTankInfo, 2500)
 
         MoveXYIsChanged = () => {
             let MoveX = joyMove.GetX();
@@ -257,17 +272,15 @@
                 }
             } catch {
                 console.log(`(${joyMoveX.innerText}, ${joyMoveY.innerText}) => (${MoveX}, ${MoveY})`);
-                tan = MoveY / MoveX;
                 joyMoveX.innerText = MoveX;
                 joyMoveY.innerText = MoveY;
-                tan.innerText = ori = tan;
-                atan.innerText = ori_ah = Math.atan(tan);
                 // AJAX.post(`${itank_api}/api/move`, {
                 //     x: MoveX,
                 //     y: MoveY
                 // });
             }
         }
+        setInterval(MoveXYIsChanged, 50);
 
         MoveDIrzIsChange = () => {
             let MoveDirz = joyMove.GetDir();
@@ -279,18 +292,14 @@
                 console.log(`Dirz: (${dirz.innerText}) => (${MoveDirz})`);
                 dirz.innerText = MoveDirz;
                 AjaxAPI_GET(`/api/control/dir/${dirz.innerText}`, {
-                    success: {
-
+                    success: () => {
+                        console.log(`Send iTank Move Status: ${dirz.innerText}`);
                     }
                 })
             }
         }
-
-        // setInterval(MoveXYIsChanged, 50);
-
         setInterval(MoveDIrzIsChange, 100);
-
-        setInterval(iTankInfo, 2500)
+        
     </script>
 </body>
 </html>
