@@ -12,5 +12,5 @@ app.use('/static', express.static( __dirname + "/static" ));
 app.use('/node_modules', express.static( __dirname + "/" + "node_modules" ));
 
 app.listen(port, () => {
-    console.log(`[System] listening at http://localhost:${port}`)
-  })
+    console.log('\x1b[32m%s\x1b[0m', `[SYSTEM] Listening at port: ${port}`)
+})
