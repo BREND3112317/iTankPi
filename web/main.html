@@ -42,9 +42,13 @@
             width: 100%;
             height: 50vh;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: flex-start;
+        }
+
+        .info .setting-container {
+            margin: 25px;
         }
 
         .info .info-container {
@@ -78,8 +82,8 @@
         }
 
         .control-left div {
-            margin-left: 10px;
-            margin-right: 10px;
+            margin-left: 25px;
+            margin-right: 25px;
         }
 
         .control-left #joystick {
@@ -99,8 +103,8 @@
         }
 
         .control-right div {
-            margin-left: 10px;
-            margin-right: 10px;
+            margin-left: 25px;
+            margin-right: 25px;
         }
 
         .control-right #joystick {
@@ -156,6 +160,11 @@
             <img id="webcamStream" src=""/>
         </div>
         <div class="info">
+            <div class="setting-container">
+                <button type="button" class="btn btn-secondary">
+                    <i style="font-size: 32px;" class="fas fa-cog"></i>
+                </button>
+            </div>
             <div class="info-container">
                 <span>tTitle: tData</span>
             </div>
@@ -198,8 +207,7 @@
                         </div>
                     </div>
                 </div>
-                <button type="
-                " class="btn btn-primary">回正</button>
+                <button type="button" style="font-size: 24px;" class="btn btn-primary">回正</button>
             </div>
         </div>
     </div>
@@ -214,7 +222,7 @@
         var webcam_stream = document.getElementById('webcamStream')
         webcam_stream.setAttribute('src', stream_link)
 
-        var itank_api = "//192.168.2.105"
+        var itank_api = "//192.168.43.155"
 
         var joyMove = new JoyStick('joyMove');
         var joyMoveX = document.getElementById('joyMoveX');
