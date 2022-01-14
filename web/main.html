@@ -357,8 +357,8 @@
             let Vangle = (Math.asin(parseFloat(CamY) / ((CamX**2 + CamY**2)**(0.5)))*180/Math.PI || 0) //Y
             let Hangle = (Math.asin(parseFloat(CamX) / ((CamX**2 + CamY**2)**(0.5)))*180/Math.PI || 0) //X
 
-            joyCamX.innerText = Hangle;
-            joyCamY.innerText = Vangle;
+            joyCamX.innerText = Math.round(Hangle);
+            joyCamY.innerText = Math.round(Vangle);
             let ControlDirV = Math.round(Math.max(Math.min(catchControlDirV+handControlSpeed*Math.sin(Vangle), 180), 0))
             let ControlDirH = Math.round(Math.max(Math.min(catchControlDirH+handControlSpeed*Math.sin(Hangle), 180), 0))
             try {
