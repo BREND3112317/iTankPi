@@ -267,6 +267,7 @@
             });
         }
 
+        // 顯示iTank API資訊
         iTankInfo = () => {
             AjaxAPI_GET("/api/info", {
                 success: (data) => {
@@ -280,8 +281,10 @@
                 }
             });
         }
+        // 定時 1000ms 執行 iTankInfo()
         setInterval(iTankInfo, 1000)
 
+        
         MoveXYIsChanged = () => {
             let MoveX = joyMove.GetX();
             let MoveY = joyMove.GetY();
@@ -301,6 +304,7 @@
         }
         // setInterval(MoveXYIsChanged, 50);
 
+        // 移動搖桿的方向改變偵測，進行控制更新
         MoveDIrzIsChange = () => {
             let moveDirz = joyMove.GetDir();
             try {
@@ -317,6 +321,7 @@
                 })
             }
         }
+        // 定時 100ms 執行 MoveDIrzIsChange()
         setInterval(MoveDIrzIsChange, 100);
 
         ajax_HandDirz = (H, V) => {
@@ -333,47 +338,36 @@
             })
         }
 
+        // 手臂搖桿的方向改變偵測，進行方向控制更新
         CamXYIsChanged = () => {
+            // 取得搖桿控制座標
             let CamX = joyCam.GetX();
             let CamY = joyCam.GetY();
-            // try {
-            //     if(parseInt(joyCamX.innerText) != CamX || parseInt(joyCamY.innerText) != CamY) {
-            //         throw Exception();
-            //     }
-            // } catch {
-            //     console.log(`(${joyCamX.innerText}, ${joyCamY.innerText}) => (${CamX}, ${CamY})`);
-            //     joyCamX.innerText = CamX;
-            //     joyCamY.innerText = CamY;
-            //     let Vangle = Math.round((Math.asin(parseFloat(CamY) / ((CamX**2 + CamY**2)**(0.5)))*180/Math.PI || 0))+90
-            //     let Hangle = Math.round((Math.asin(parseFloat(CamX) / ((CamX**2 + CamY**2)**(0.5)))*180/Math.PI || 0))+90
-            //     // let Hangle = Math.round(CamX*0.9)+90
-            //     cirV.innerText = (catchControlDirV += handControlSpeed*Math.sin(Vangle-90));
-            //     cirH.innerText = (catchControlDirH += handControlSpeed*Math.cos(Hangle+90));
-            //     // cirH.innerText = Hangle
-            //     // cirV.innerText = Vangle
-            //     // ajax_HandDirz(Hangle, Vangle)
-            // }
 
+            // 計算角度
             let Vangle = (Math.asin(parseFloat(CamY) / ((CamX**2 + CamY**2)**(0.5)))*180/Math.PI || 0) //Y
             let Hangle = (Math.asin(parseFloat(CamX) / ((CamX**2 + CamY**2)**(0.5)))*180/Math.PI || 0) //X
-
             joyCamX.innerText = Math.round(Hangle);
             joyCamY.innerText = Math.round(Vangle);
+
+            // 計算並轉換新的手臂控制角度
             let ControlDirV = Math.round(Math.max(Math.min(catchControlDirV+handControlSpeed*Math.sin(Vangle), 180), 0))
             let ControlDirH = Math.round(Math.max(Math.min(catchControlDirH+handControlSpeed*Math.sin(Hangle), 180), 0))
             try {
+                // 如果手臂控制角度沒有改變，則不進行更新
                 if(catchControlDirV != ControlDirV || catchControlDirH != ControlDirH) {
                     throw Exception();
                 }
             } catch {
+                // 畫面數值更新 以及 對iTank進行手臂控制
                 console.log(`(${catchControlDirH}, ${catchControlDirV}) => (${ControlDirH}, ${ControlDirV})`);
                 cirV.innerText = catchControlDirV = ControlDirV
                 cirH.innerText = catchControlDirH = ControlDirH
                 ajax_HandDirz(catchControlDirH, catchControlDirV)
             }
         }
-        // CamXYIsChanged()
-        setInterval(CamXYIsChanged, 50);
+        // 定時 250ms 執行 CamXYIsChanged()
+        setInterval(CamXYIsChanged, 250);
 
         resetHandDirz = () => {
             cirV.innerText = catchControlDirV = 90
